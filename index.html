@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>디지털포렌식 체험부스</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f4f4f2; color: #1a1a1a; min-height: 100vh; }
+
+  .nav { background: #1a2744; color: #fff; padding: 0.7rem 1.25rem; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
+  .nav-back { background: none; border: none; color: #99a8c8; font-size: 13px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+  .nav-back:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .nav-title { font-size: 14px; font-weight: 500; color: #fff; }
+  .nav-org { margin-left: auto; font-size: 11px; color: #99a8c8; white-space: nowrap; }
+
+  .hub { max-width: 680px; margin: 0 auto; padding: 2rem 1.25rem; }
+  .hub-header { margin-bottom: 1.75rem; }
+  .hub-org { font-size: 12px; color: #888; margin-bottom: 6px; }
+  .hub-header h1 { font-size: 21px; font-weight: 600; margin-bottom: 6px; }
+  .hub-header p { font-size: 13px; color: #666; line-height: 1.6; }
+
+  .booth-grid { display: flex; flex-direction: column; gap: 10px; }
+  .booth-card { background: #fff; border-radius: 14px; border: 1px solid #e5e5e5; padding: 1.1rem 1.25rem; cursor: pointer; transition: transform 0.12s, box-shadow 0.12s; display: flex; align-items: center; gap: 14px; }
+  .booth-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
+  .booth-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .booth-info h2 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .booth-info p { font-size: 12px; color: #777; line-height: 1.4; }
+  .booth-arrow { margin-left: auto; color: #ccc; font-size: 18px; flex-shrink: 0; }
+  .b1 .booth-icon { background: #e8f0fe; }
+  .b2 .booth-icon { background: #fce8f3; }
+  .b3 .booth-icon { background: #e6f4ea; }
+
+  .page { display: none; max-width: 680px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  .page.active { display: block; }
+
+  .page-hero { border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+  .b1 .page-hero { background: #e8f0fe; }
+  .b2 .page-hero { background: #fce8f3; }
+  .b3 .page-hero { background: #e6f4ea; }
+  .page-hero h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .page-hero p { font-size: 13px; color: #444; line-height: 1.5; }
+
+  .section-title { font-size: 11px; font-weight: 600; color: #999; letter-spacing: 0.05em; text-transform: uppercase; margin: 1.5rem 0 8px; }
+
+  .steps { display: flex; flex-direction: column; gap: 9px; }
+  .step { background: #fff; border-radius: 12px; border: 1px solid #ebebeb; padding: 0.95rem 1.1rem; display: flex; gap: 13px; align-items: flex-start; }
+  .step-num { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+  .b1 .step-num { background: #e8f0fe; color: #1a73e8; }
+  .b2 .step-num { background: #fce8f3; color: #d63384; }
+  .b3 .step-num { background: #e6f4ea; color: #1e8e3e; }
+  .step-content h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .step-content p { font-size: 13px; color: #555; line-height: 1.6; }
+  .step-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 10px; font-weight: 500; }
+  .tag-warn { background: #fff3cd; color: #7a5200; }
+  .tag-tip  { background: #d1ecf1; color: #0c5460; }
+  .tag-key  { background: #d4edda; color: #155724; }
+  .tag-bad  { background: #f8d7da; color: #721c24; }
+
+  .lessons { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .lesson { background: #fff; border-radius: 12px; border: 1px solid #ebebeb; padding: 0.95rem 1rem; }
+  .lesson-icon { font-size: 18px; margin-bottom: 5px; }
+  .lesson h3 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .lesson p { font-size: 12px; color: #666; line-height: 1.55; }
+
+  .quiz-card { background: #fff; border-radius: 12px; border: 1px solid #ebebeb; padding: 1.1rem 1.25rem; }
+  .quiz-q { font-size: 14px; font-weight: 600; margin-bottom: 11px; line-height: 1.55; }
+  .quiz-options { display: flex; flex-direction: column; gap: 7px; }
+  .quiz-opt { background: #f8f8f8; border: 1.5px solid #e8e8e8; border-radius: 8px; padding: 0.7rem 1rem; font-size: 13px; cursor: pointer; text-align: left; transition: background 0.12s; font-family: inherit; }
+  .quiz-opt:hover:not(:disabled) { background: #f0f0f0; }
+  .quiz-opt.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+  .quiz-opt.wrong   { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+  .quiz-feedback { margin-top: 10px; font-size: 13px; padding: 9px 12px; border-radius: 8px; display: none; line-height: 1.6; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #d4edda; color: #155724; }
+  .quiz-feedback.no { background: #f8d7da; color: #721c24; }
+
+  .notice { background: #fffbec; border-left: 3px solid #f0a500; border-radius: 0 10px 10px 0; padding: 0.85rem 1rem; margin-top: 1rem; }
+  .notice p { font-size: 13px; color: #5a3e00; line-height: 1.65; }
+
+  /* 툴팁 */
+  .term { background: #e8f0fe; color: #1a56c4; border-radius: 4px; padding: 0 4px; cursor: pointer; border-bottom: 2px solid #1a56c4; font-weight: 500; white-space: nowrap; }
+  .term:hover { background: #c8d9fc; }
+  .tip-box { position: fixed; z-index: 9999; background: #1a2744; color: #fff; font-size: 12.5px; line-height: 1.65; padding: 10px 14px; border-radius: 10px; max-width: 260px; box-shadow: 0 6px 20px rgba(0,0,0,0.22); display: none; }
+  .tip-box::after { content: ''; position: absolute; width: 10px; height: 10px; background: #1a2744; transform: rotate(45deg); left: 18px; bottom: -5px; border-radius: 2px; }
+  .tip-box.above::after { bottom: auto; top: -5px; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <button class="nav-back" id="back-btn" style="display:none" onclick="goHub()">← 목록</button>
+  <span class="nav-title" id="nav-title">디지털포렌식 체험부스</span>
+  <span class="nav-org">부산지방고용노동청</span>
+</div>
+
+<!-- HUB -->
+<div class="hub" id="hub-page">
+  <div class="hub-header">
+    <div class="hub-org">부산지방고용노동청 디지털포렌식팀</div>
+    <h1>디지털포렌식 체험부스</h1>
+    <p>현장에서 포렌식을 의뢰하는 담당자를 위한 실무 안내입니다.<br>부스를 선택하면 체험 가이드가 열립니다.</p>
+  </div>
+  <div class="booth-grid">
+    <div class="booth-card b1" onclick="goPage('b1')">
+      <div class="booth-icon">📹</div>
+      <div class="booth-info">
+        <h2>부스 1 — CCTV 셋톱박스 포렌식</h2>
+        <p>분석 활용 사례 · 골든타임 vs 복구 · 현장 획득 주의사항</p>
+      </div>
+      <span class="booth-arrow">›</span>
+    </div>
+    <div class="booth-card b2" onclick="goPage('b2')">
+      <div class="booth-icon">📱</div>
+      <div class="booth-info">
+        <h2>부스 2 — 모바일 포렌식</h2>
+        <p>흔적 기반 간접 입증 · 진정인 증거 제출 · 구형/파손 기기</p>
+      </div>
+      <span class="booth-arrow">›</span>
+    </div>
+    <div class="booth-card b3" onclick="goPage('b3')">
+      <div class="booth-icon">🎙️</div>
+      <div class="booth-info">
+        <h2>부스 3 — STT 음성 분석</h2>
+        <p>녹취파일 변환 시연 · 증거 활용 방법 · 의뢰 시 주의사항</p>
+      </div>
+      <span class="booth-arrow">›</span>
+    </div>
+  </div>
+  <p style="text-align:center; font-size:12px; color:#aaa; margin-top:1.5rem;">파란색 단어를 탭하면 용어 설명이 나타납니다</p>
+</div>
+
+<!-- B1: CCTV -->
+<div class="page b1" id="page-b1">
+  <div class="page-hero">
+    <h2>📹 CCTV 셋톱박스 포렌식</h2>
+    <p>CCTV 영상은 수사의 핵심 증거입니다. 포렌식팀에 의뢰하면 어떤 분석이 가능한지, 그리고 현장에서 어떻게 확보해야 하는지를 안내합니다.</p>
+  </div>
+
+  <div class="section-title">포렌식팀에 의뢰하면 이런 분석이 가능합니다</div>
+  <div class="lessons">
+    <div class="lesson"><div class="lesson-icon">🕐</div><h3>타임라인 재구성</h3><p>녹화 <span class="term" data-tip="메타데이터: 영상 파일에 자동으로 기록되는 부가 정보입니다. 녹화 시작/종료 시각, 카메라 채널 번호, 해상도 등이 포함됩니다.">메타데이터</span>로 사건 시간대를 특정합니다. 근로시간·재해 발생 시각 입증에 활용됩니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">🔍</div><h3>영상 화질 보정</h3><p>어둡거나 흐린 영상의 노출·대비·선명도를 조정하고, 누락된 <span class="term" data-tip="프레임: 영상을 구성하는 낱장 사진입니다. 1초에 보통 15~30장이 연속 재생되어 움직이는 영상이 됩니다.">프레임</span>을 보간합니다. 일단 영상이 있으면 의뢰해 보세요.</p></div>
+    <div class="lesson"><div class="lesson-icon">🛡️</div><h3>위변조 탐지</h3><p>편집 흔적, <span class="term" data-tip="타임스탬프: 영상에 기록된 날짜·시각 정보입니다. 조작이 의심될 경우 이 값의 일관성을 검증합니다.">타임스탬프</span> 불일치를 감지합니다. 사업주 제출 영상의 신뢰성 검증에 쓰입니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">📼</div><h3>삭제 영상 복구</h3><p><span class="term" data-tip="덮어쓰기: 저장 공간이 부족해지면 CCTV가 오래된 영상 위에 새 영상을 기록하는 것입니다. 덮어쓰기가 된 부분은 복구가 매우 어렵습니다.">덮어쓰기</span> 전 영역에서 삭제된 프레임 복원을 시도합니다. 단, 시간이 지날수록 가능성이 낮아집니다.</p></div>
+  </div>
+
+  <div class="section-title">골든타임 — 복구보다 확보가 먼저입니다</div>
+  <div class="steps">
+    <div class="step" style="flex-direction:column; gap:12px">
+      <div class="step-content" style="width:100%">
+        <h3>같은 CCTV, 다른 결과</h3>
+        <p>아래 두 영상을 비교해 보세요. 왼쪽은 <strong>덮어쓰기 후 복구한 영상</strong>, 오른쪽은 <strong>골든타임 내 정상 획득한 영상</strong>입니다.</p>
+      </div>
+      <div style="display:flex; gap:10px; width:100%">
+        <div style="flex:1; text-align:center">
+          <iframe src="https://www.youtube.com/embed/n02E0kcCSzM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; aspect-ratio:16/9; border-radius:8px; border:2px solid #dc3545"></iframe>
+          <p style="font-size:12px; color:#dc3545; font-weight:600; margin-top:5px">❌ 복구 영상 (프레임 짜깁기)</p>
+        </div>
+        <div style="flex:1; text-align:center">
+          <iframe src="https://www.youtube.com/embed/669v3egaScs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; aspect-ratio:16/9; border-radius:8px; border:2px solid #28a745"></iframe>
+          <p style="font-size:12px; color:#28a745; font-weight:600; margin-top:5px">✅ 정상 획득 영상</p>
+        </div>
+      </div>
+      <div class="notice" style="margin-top:0">
+        <p>복구된 영상은 프레임이 뒤섞이고 화질이 심하게 열화되어 <strong>증거 가치가 크게 떨어집니다.</strong> CCTV는 용량이 차면 오래된 영상부터 자동으로 덮어쓰므로, <strong>영상이 필요하다면 즉시 확보하거나 포렌식팀에 의뢰</strong>하세요. 복구는 최후의 수단입니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">현장 획득 시 주의사항</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>PC·웹 방식으로 영상을 받으면 안 되는 이유</h3>
+        <p>CCTV 웹뷰어나 PC 소프트웨어로 장기간 영상을 다운로드하면 <span class="term" data-tip="세션(Session): 컴퓨터와 기기가 인터넷으로 연결을 유지하는 상태입니다. 일정 시간이 지나거나 네트워크가 불안정해지면 연결이 자동으로 끊깁니다.">세션</span>이 중간에 끊기거나, 네트워크 <span class="term" data-tip="전송량 제한: 한 번에 주고받을 수 있는 데이터의 최대 크기 제한입니다. 이 한도를 초과하면 전송이 강제로 중단됩니다.">전송량 제한</span>으로 수신이 중단됩니다. 장시간·대용량 영상은 이 방식으로 완전히 확보하기 어렵습니다.</p>
+        <div class="step-tags">
+          <span class="tag tag-bad">세션 끊김 위험</span>
+          <span class="tag tag-bad">전송량 제한</span>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>USB로 직접 복사하는 것이 가장 안전</h3>
+        <p>CCTV 본체의 USB 포트에 저장장치를 직접 연결해 복사하는 방식이 세션 문제 없이 대용량을 안정적으로 확보할 수 있는 방법입니다. 단, 저장장치의 <span class="term" data-tip="파일시스템: 저장장치 안에 데이터를 정리하고 보관하는 방식입니다. 책장의 정리 규칙과 같아서, 규칙이 다르면 기기가 내용을 읽지 못합니다.">파일시스템</span>을 반드시 확인해야 합니다.</p>
+        <div class="step-tags"><span class="tag tag-key">직접 연결 권장</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>외장하드 연결 시 전력 문제</h3>
+        <p>CCTV <span class="term" data-tip="셋톱박스: TV나 모니터에 연결해 CCTV 영상을 저장·재생하는 녹화 장치입니다. DVR, NVR이라고도 부릅니다.">셋톱박스</span>의 USB 포트는 전력 공급이 제한적입니다. 외장하드는 전력 소모가 크기 때문에 인식이 안 되거나 작동 중 전원이 꺼질 수 있습니다. 별도 전원 어댑터가 있는 외장하드를 준비하거나, 큰 용량의 USB 메모리를 여러 개 활용하는 것이 현실적입니다.</p>
+        <div class="step-tags">
+          <span class="tag tag-warn">전원 어댑터 별도 필요</span>
+          <span class="tag tag-tip">USB 메모리 분할 활용</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">파일시스템 호환 문제 (체험 실습)</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">실험</div>
+      <div class="step-content">
+        <h3>왜 USB는 인식되고 외장하드는 안 될까?</h3>
+        <p>준비된 두 저장장치를 CCTV에 직접 꽂아보세요.</p>
+        <p style="margin-top:8px">
+          <strong>USB (<span class="term" data-tip="MBR: 저장장치의 오래된 구역 나누기 방식입니다. 2TB 이하 용량에 주로 쓰이며, 구형 기기와 호환이 잘 됩니다.">MBR</span> + <span class="term" data-tip="FAT32: 저장장치의 데이터 정리 방식 중 하나입니다. 오래됐지만 거의 모든 기기에서 읽을 수 있어 CCTV·카메라 등 임베디드 장비에서 널리 쓰입니다.">FAT32</span>)</strong> → ✅ 인식됨<br>
+          <strong>외장하드 (<span class="term" data-tip="GPT: 저장장치의 구역 나누기 방식 중 최신 방식입니다. 2TB 이상 대용량에 필요하지만, 오래된 CCTV는 이 방식을 읽지 못하는 경우가 많습니다.">GPT</span> + <span class="term" data-tip="NTFS: 윈도우 PC에서 주로 쓰는 최신 데이터 정리 방식입니다. 대용량 파일 처리에 유리하지만 구형 CCTV 장비에서는 인식하지 못하는 경우가 많습니다.">NTFS</span>)</strong> → ❌ 인식 안 됨
+        </p>
+        <p style="margin-top:8px">CCTV 같은 <span class="term" data-tip="임베디드 장비: 특정 기능만 하도록 만들어진 소형 전용 기기입니다. CCTV 녹화기, 공유기, 프린터 등이 해당됩니다.">임베디드 장비</span>는 오래된 <span class="term" data-tip="펌웨어(Firmware): 기기 안에 내장된 운영 소프트웨어입니다. 스마트폰의 안드로이드처럼 CCTV도 자체 운영 프로그램이 있으며, 오래된 버전은 최신 저장 방식을 읽지 못합니다.">펌웨어</span>를 사용하는 경우가 많아 FAT32 포맷만 읽을 수 있습니다. <strong>현장 출동 전 USB는 반드시 FAT32로 포맷</strong>해서 준비하세요.</p>
+        <div class="step-tags"><span class="tag tag-key">FAT32 포맷 USB 준비 필수</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">데이터 복구가 필요한 경우</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>영상이 이미 덮어쓰여졌거나 삭제된 경우</h3>
+        <p>CCTV는 저장 용량이 꽉 차면 오래된 영상부터 자동으로 덮어씁니다. 이 경우 일반적인 방법으로는 영상을 확보할 수 없습니다. 복구를 원한다면 <strong>셋톱박스 원본을 반출</strong>해야 합니다.</p>
+        <div class="step-tags"><span class="tag tag-warn">시간이 지날수록 복구 가능성 감소</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>셋톱박스 원본 반출 및 분해 복구</h3>
+        <p>포렌식팀이 셋톱박스를 수령한 뒤 내부 <span class="term" data-tip="HDD(하드디스크): 자석 원판에 데이터를 저장하는 장치입니다. CCTV 녹화기 내부에 주로 사용됩니다.">HDD</span> 또는 <span class="term" data-tip="낸드 플래시(NAND Flash): USB 메모리나 SSD에 쓰이는 반도체 저장 칩입니다. 소형 CCTV 장치에 주로 사용됩니다.">낸드 플래시</span>를 분리해 전문 장비로 <span class="term" data-tip="포렌식 이미지: 하드디스크 등 저장장치를 원본과 같게 복사한 파일입니다. 원본을 건드리지 않고 분석할 수 있어 증거 보전에 필수적입니다.">이미지</span>를 획득한 뒤 삭제된 데이터 복구를 시도합니다. 현장에서 임의로 셋톱박스를 분해하거나 초기화하면 <strong>복구 가능성이 크게 떨어집니다.</strong></p>
+        <div class="step-tags">
+          <span class="tag tag-bad">현장 분해·초기화 금지</span>
+          <span class="tag tag-key">원본 그대로 반출 요청</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">핵심 요약</div>
+  <div class="lessons">
+    <div class="lesson"><div class="lesson-icon">⏰</div><h3>골든타임이 생명</h3><p>복구보다 확보가 먼저. 영상이 필요하면 즉시 행동하세요.</p></div>
+    <div class="lesson"><div class="lesson-icon">💾</div><h3>FAT32 USB를 현장에</h3><p>CCTV에 꽂을 USB는 반드시 FAT32로 포맷해서 준비하세요.</p></div>
+    <div class="lesson"><div class="lesson-icon">⚡</div><h3>외장하드는 전력 문제</h3><p>전원 어댑터 없는 외장하드는 CCTV 포트에서 작동하지 않을 수 있습니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">📞</div><h3>어려우면 포렌식팀에</h3><p>획득이 어렵거나 이미 삭제된 경우, 원본을 그대로 포렌식팀에 넘기세요.</p></div>
+  </div>
+
+  <div class="section-title">확인 퀴즈</div>
+  <div class="quiz-card">
+    <div class="quiz-q">Q. CCTV 영상을 확보하기 위해 웹뷰어로 장시간 다운로드를 시도했더니 중간에 멈춰버렸습니다. 가장 적절한 대처는?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'b1',false)">① 다시 처음부터 웹뷰어로 재시도한다</button>
+      <button class="quiz-opt" onclick="answer(this,'b1',true)">② FAT32로 포맷한 USB를 CCTV 본체에 직접 연결해 복사한다</button>
+      <button class="quiz-opt" onclick="answer(this,'b1',false)">③ 셋톱박스를 초기화한 뒤 다시 시도한다</button>
+      <button class="quiz-opt" onclick="answer(this,'b1',false)">④ 외장하드를 연결해 전체 데이터를 받는다</button>
+    </div>
+    <div class="quiz-feedback" id="fb-b1"></div>
+  </div>
+  <div class="notice"><p>⚠ 영상이 필요한 경우 <strong>가능한 한 빨리</strong> 확보하거나 의뢰하세요. CCTV는 용량이 차면 자동으로 오래된 영상을 덮어쓰기 때문에 시간이 지날수록 복구 가능성이 낮아집니다.</p></div>
+</div>
+
+<!-- B2: MOBILE -->
+<div class="page b2" id="page-b2">
+  <div class="page-hero">
+    <h2>📱 모바일 포렌식</h2>
+    <p>노동사건에서 휴대폰은 핵심 증거입니다. 진정인이 자발적으로 제출하는 경우에도, 조사 과정에서 확보하는 경우에도 올바른 절차가 중요합니다.</p>
+  </div>
+
+  <div class="section-title">포렌식팀이 하는 일</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>기기에서 데이터를 추출</h3>
+        <p>포렌식 전용 도구로 기기의 데이터를 <span class="term" data-tip="포렌식 이미지: 하드디스크 등 저장장치를 원본과 같게 복사한 파일입니다. 원본을 건드리지 않고 분석할 수 있어 증거 보전에 필수적입니다.">이미지 파일</span>로 추출합니다. 사진, 문자, 앱 데이터 등이 확보됩니다.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>흔적과 주변 정보로 간접 입증</h3>
+        <p>삭제된 데이터 자체를 되살리는 것은 <span class="term" data-tip="Physical Imaging: 기기 저장장치와 물리적으로 동일하게 복사하는 기술입니다. 삭제 영역까지 포함해 복사하므로 복구 가능성이 높지만, 최신 기기에서는 암호화 등으로 이러한 획득방식이 점점 어려워지고 있습니다.">물리 이미징</span>이 아닌 이상 쉽지 않습니다. 대신 앱에 남은 <span class="term" data-tip="아티팩트(Artifact): 앱이나 운영체제가 자동으로 남기는 사용 흔적입니다. 예: 카카오톡 대화 DB, 통화 기록, 위치 로그, 브라우저 방문 기록 등. 사용자가 직접 삭제하기 어려운 경우가 많아 증거로 유용합니다.">아티팩트</span> — 카카오톡 대화 DB, 통화 기록, 위치 로그, 브라우저 기록 등 — 을 조합해 사건을 간접적으로 입증합니다.</p>
+        <div class="step-tags"><span class="tag tag-key">흔적 조합 = 간접 입증</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>타임라인 재구성</h3>
+        <p>여러 앱의 기록을 시간순으로 엮어 <span class="term" data-tip="타임라인: 특정 기간 동안 일어난 일들을 시간 순서대로 정리한 것입니다. 포렌식에서는 기기 사용 기록을 시간순으로 재구성해 사건 경위를 파악하는 데 활용합니다.">타임라인</span>을 만듭니다. 근로시간 입증, 부당해고 전후 정황 파악, 임금체불 관련 지시 내역 확인 등에 활용됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">노동사건에서 특히 중요한 점</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">💡</div>
+      <div class="step-content">
+        <h3>진정인이 자발적으로 증거를 제출하는 경우</h3>
+        <p>임금체불·부당해고 등 노동사건에서 <strong>진정인이 유리한 증거를 직접 제출</strong>하는 경우가 많습니다. 카카오톡 대화, 근무시간 기록 앱, 급여 관련 문자 등이 담긴 휴대폰을 포렌식팀에 제출하면, 스크린샷보다 훨씬 강력한 원본 증거를 확보할 수 있습니다.</p>
+        <div class="step-tags">
+          <span class="tag tag-key">원본 제출 &gt; 스크린샷</span>
+          <span class="tag tag-tip">진정인에게 안내 가능</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">의뢰 전 주의사항</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>기기를 계속 사용하면 흔적이 사라집니다</h3>
+        <p>앱을 실행하거나 메시지를 확인하는 것만으로도 <span class="term" data-tip="아티팩트(Artifact): 앱이나 운영체제가 자동으로 남기는 사용 흔적입니다.">아티팩트</span>가 갱신되거나 덮어쓰여질 수 있습니다. 증거가 필요한 기기는 <strong>즉시 사용을 중단</strong>하고 포렌식팀에 인계하세요.</p>
+        <div class="step-tags"><span class="tag tag-bad">사용 중단 후 즉시 인계</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>예전에 쓰던 폰도 제출하세요</h3>
+        <p>사건 당시 사용하던 <strong>이전 기기</strong>에 핵심 증거가 남아 있는 경우가 많습니다. 기종을 바꿨더라도 예전 폰이 있다면 반드시 함께 제출해 주세요.</p>
+        <div class="step-tags"><span class="tag tag-tip">구형 기기도 분석 가능</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>파손된 기기도 포기하지 마세요</h3>
+        <p>화면이 깨지거나 전원이 안 들어오는 기기도 <strong>내부 저장 칩에서 데이터를 추출</strong>할 수 있는 경우가 있습니다. 상태와 무관하게 일단 포렌식팀에 문의하세요.</p>
+        <div class="step-tags"><span class="tag tag-tip">파손 기기도 일단 문의</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>화면 잠금 해제 정보를 함께 전달</h3>
+        <p>PIN, 패턴, 비밀번호 등 잠금 해제 정보가 있으면 분석이 훨씬 빠르고 범위가 넓어집니다. 잠금이 걸린 기기도 의뢰 가능하지만 분석 가능 범위가 제한될 수 있습니다.</p>
+        <div class="step-tags"><span class="tag tag-tip">잠금 해제 정보 함께 전달</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>공장 초기화는 절대 금지</h3>
+        <p>기기를 <span class="term" data-tip="공장 초기화: 기기를 처음 구입했을 때 상태로 되돌리는 것입니다. 저장된 거의 모든 데이터가 삭제되어 복구가 매우 어려워집니다.">공장 초기화</span>하면 대부분의 아티팩트가 삭제되어 분석이 극히 어려워집니다.</p>
+        <div class="step-tags"><span class="tag tag-bad">초기화 절대 금지</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>클라우드 데이터는 별도의 법적 절차가 필요</h3>
+        <p><span class="term" data-tip="클라우드: 기기가 아닌 인터넷 서버에 저장된 데이터입니다. iCloud, 구글 드라이브, 카카오톡 백업 등이 해당됩니다. 기기를 분석해도 클라우드에만 있는 데이터는 확보되지 않습니다.">클라우드</span>(iCloud, 구글 드라이브 등)에 저장된 데이터는 기기 분석만으로 확보할 수 없습니다. <strong>압수수색 영장에 클라우드 계정을 명시</strong>하는 등 별도의 법적 절차가 필요하므로 사전에 포렌식팀과 협의하세요.</p>
+        <div class="step-tags">
+          <span class="tag tag-warn">영장에 클라우드 명시 필요</span>
+          <span class="tag tag-tip">사전 협의 권장</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">핵심 요약</div>
+  <div class="lessons">
+    <div class="lesson"><div class="lesson-icon">📋</div><h3>원본 제출이 최선</h3><p>스크린샷보다 기기 원본을 제출하면 훨씬 강력한 증거를 확보할 수 있습니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">📱</div><h3>구형·파손 기기도 가능</h3><p>예전 폰이나 파손 기기도 분석 가능합니다. 일단 포렌식팀에 문의하세요.</p></div>
+    <div class="lesson"><div class="lesson-icon">🔐</div><h3>잠금 정보도 중요</h3><p>잠금 해제 정보가 있으면 분석 범위와 속도가 크게 달라집니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">☁️</div><h3>클라우드는 별도 절차</h3><p>영장에 클라우드 계정을 명시하는 등 사전 협의가 필요합니다.</p></div>
+  </div>
+
+  <div class="section-title">확인 퀴즈</div>
+  <div class="quiz-card">
+    <div class="quiz-q">Q. 임금체불 진정 사건에서 진정인이 증거가 담긴 휴대폰을 제출하겠다고 합니다. 가장 적절한 안내는?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'b2',false)">① 카카오톡 대화를 스크린샷으로 찍어 제출하라고 안내한다</button>
+      <button class="quiz-opt" onclick="answer(this,'b2',false)">② 개인정보 보호를 위해 불필요한 앱을 삭제한 뒤 제출하라고 안내한다</button>
+      <button class="quiz-opt" onclick="answer(this,'b2',true)">③ 기기 사용을 최소화하고 잠금 해제 정보와 함께 원본 그대로 제출하라고 안내한다</button>
+      <button class="quiz-opt" onclick="answer(this,'b2',false)">④ 클라우드에 백업한 뒤 기기를 초기화해서 제출하라고 안내한다</button>
+    </div>
+    <div class="quiz-feedback" id="fb-b2"></div>
+  </div>
+  <div class="notice"><p>⚠ 진정인이 자발적으로 제출하는 경우에도 <strong>동의서</strong>를 받아두세요. 타인의 기기를 분석하려면 법적 근거(영장 등)가 필요합니다. 의뢰 전 포렌식팀과 절차를 먼저 확인하세요.</p></div>
+</div>
+
+<!-- B3: STT -->
+<div class="page b3" id="page-b3">
+  <div class="page-hero">
+    <h2>🎙️ SoundWriter — 음성 분석 도구</h2>
+    <p>녹취파일을 넣으면 AI가 텍스트로 변환하고, 키워드 검색·하이라이트·번역까지 한 번에. 포렌식 의뢰 없이도 수사관이 직접 녹취록을 분석할 수 있습니다.</p>
+  </div>
+
+  <div class="section-title">시연: 녹취파일 하나로 이 모든 것이 됩니다</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>음성 파일 불러오기 → 자동 텍스트 변환</h3>
+        <p>mp3, wav, m4a 등 음성 파일을 드래그하거나 불러오면 <span class="term" data-tip="STT(Speech-To-Text): 음성을 자동으로 텍스트로 바꿔주는 AI 기술입니다. SoundWriter는 오프라인에서 동작하는 Faster-Whisper 엔진을 사용합니다.">STT</span> AI가 발화 내용을 <span class="term" data-tip="타임스탬프: 각 발언이 녹음된 정확한 시각(예: 00:03:42)을 표시한 것입니다. 클릭하면 해당 시점의 음성을 바로 재생할 수 있습니다.">타임스탬프</span>와 함께 텍스트로 변환합니다. <strong>인터넷 연결 없이</strong> 수사관 PC에서 바로 처리됩니다.</p>
+        <div class="step-tags">
+          <span class="tag tag-key">오프라인 동작 — 보안 걱정 없음</span>
+          <span class="tag tag-tip">수십 분 녹취도 수 분 내 처리</span>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>타임스탬프 클릭 = 해당 시점 즉시 재생</h3>
+        <p>변환된 녹취록의 시간을 클릭하면 해당 시점의 음성이 바로 재생됩니다. 텍스트를 보면서 원본 음성을 동시에 확인할 수 있어, <strong>오인식 여부를 현장에서 즉시 검증</strong>할 수 있습니다.</p>
+        <div class="step-tags"><span class="tag tag-key">듣고 싶은 부분만 골라 듣기</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>화자 분리 — 누가 무슨 말을 했는지</h3>
+        <p><span class="term" data-tip="화자 분리(Speaker Diarization): 녹음에서 여러 사람의 목소리를 자동으로 구분해 '화자1', '화자2' 등으로 나눠주는 기능입니다.">화자 분리</span> 기능을 켜면 대화 참여자를 자동으로 구분합니다. "피의자가 ~라고 말했다"는 진술의 근거를 녹취록에서 직접 확인할 수 있습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">수사관을 위한 핵심 기능</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">🔍</div>
+      <div class="step-content">
+        <h3>키워드 검색 + 색상 하이라이트</h3>
+        <p>쉼표로 구분해 여러 키워드를 동시에 검색하면, 각 키워드가 <strong>다른 색상</strong>으로 하이라이트됩니다. 예를 들어 "임금,해고,협박"을 검색하면 노란색·초록색·파란색으로 구분되어 한눈에 핵심 발언을 파악할 수 있습니다.</p>
+        <div class="step-tags">
+          <span class="tag tag-key">최대 6색 자동 배정</span>
+          <span class="tag tag-tip">수백 줄에서도 핵심만 골라보기</span>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">📝</div>
+      <div class="step-content">
+        <h3>주석 메모 삽입</h3>
+        <p>녹취록 중간에 수사관의 메모를 삽입할 수 있습니다. "여기서 피의자 목소리 톤 변화", "진정인 진술과 일치" 등의 주석을 타임라인에 직접 기록할 수 있습니다.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">📁</div>
+      <div class="step-content">
+        <h3>내보내기 — TXT · PDF · HWPX</h3>
+        <p>분석이 끝난 녹취록을 <strong>TXT, PDF, HWPX(한글)</strong> 형식으로 내보낼 수 있습니다. 현재 파일만, 선택한 파일들만, 또는 전체 일괄 내보내기가 가능해 보고서 작성이 간편합니다.</p>
+        <div class="step-tags">
+          <span class="tag tag-key">HWPX 한글 파일 직접 생성</span>
+          <span class="tag tag-tip">키워드 하이라이트 색상 유지</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">단축키 — 키보드에서 손 떼지 않고 분석</div>
+  <div class="steps">
+    <div class="step" style="flex-direction:column; gap:0">
+      <div class="step-content" style="width:100%">
+        <p style="margin-bottom:14px">녹취록을 읽으면서 음성을 제어하고, 키워드를 탐색하고, 편집까지 <strong>키보드만으로</strong> 할 수 있습니다.</p>
+
+        <div style="font-size:11px; font-weight:600; color:#1e8e3e; margin-bottom:6px; letter-spacing:0.03em">재생 제어</div>
+        <table style="width:100%; font-size:13px; border-collapse:collapse; line-height:1.7; margin-bottom:14px">
+          <tr style="border-bottom:1px solid #e8e8e8">
+            <td style="padding:5px 10px; white-space:nowrap; width:160px"><kbd style="background:#e6f4ea; color:#1e8e3e; padding:2px 8px; border-radius:5px; font-size:12px; font-weight:600; border:1px solid #c8e6c9">Shift + Space</kbd></td>
+            <td style="padding:5px 10px">재생 / 일시정지 <span style="color:#999; font-size:11px">— 편집 중에도 작동</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid #e8e8e8">
+            <td style="padding:5px 10px; white-space:nowrap"><kbd style="background:#e6f4ea; color:#1e8e3e; padding:2px 8px; border-radius:5px; font-size:12px; font-weight:600; border:1px solid #c8e6c9">Alt + ←</kbd>  <kbd style="background:#e6f4ea; color:#1e8e3e; padding:2px 8px; border-radius:5px; font-size:12px; font-weight:600; border:1px solid #c8e6c9">Alt + →</kbd></td>
+            <td style="padding:5px 10px">3초 뒤로 / 3초 앞으로</td>
+          </tr>
+        </table>
+
+        <div style="font-size:11px; font-weight:600; color:#1e8e3e; margin-bottom:6px; letter-spacing:0.03em">검색 · 키워드</div>
+        <table style="width:100%; font-size:13px; border-collapse:collapse; line-height:1.7; margin-bottom:14px">
+          <tr style="border-bottom:1px solid #e8e8e8">
+            <td style="padding:5px 10px; white-space:nowrap; width:160px"><kbd style="background:#e6f4ea; color:#1e8e3e; padding:2px 8px; border-radius:5px; font-size:12px; font-weight:600; border:1px solid #c8e6c9">Ctrl + F</kbd></td>
+            <td style="padding:5px 10px">키워드 검색창 열기</td>
+          </tr>
+          <tr style="border-bottom:1px solid #e8e8e8">
+            <td style="padding:5px 10px; white-space:nowrap"><kbd style="background:#e6f4ea; color:#1e8e3e; padding:2px 8px; border-radius:5px; font-size:12px; font-weight:600; border:1px solid #c8e6c9">[</kbd>  <kbd style="background:#e6f4ea; color:#1e8e3e; padding:2px 8px; border-radius:5px; font-size:12px; font-weight:600; border:1px solid #c8e6c9">]</kbd></td>
+            <td style="padding:5px 10px">이전 / 다음 키워드 위치로 점프</td>
+          </tr>
+        </table>
+
+        <div style="font-size:11px; font-weight:600; color:#1e8e3e; margin-bottom:6px; letter-spacing:0.03em">녹취록 편집</div>
+        <table style="width:100%; font-size:13px; border-collapse:collapse; line-height:1.7; margin-bottom:14px">
+          <tr style="border-bottom:1px solid #e8e8e8">
+            <td style="padding:5px 10px; white-space:nowrap; width:160px"><kbd style="background:#e6f4ea; color:#1e8e3e; padding:2px 8px; border-radius:5px; font-size:12px; font-weight:600; border:1px solid #c8e6c9">Alt + Enter</kbd></td>
+            <td style="padding:5px 10px">선택한 행 텍스트 편집</td>
+          </tr>
+          <tr style="border-bottom:1px solid #e8e8e8">
+            <td style="padding:5px 10px; white-space:nowrap"><kbd style="background:#e6f4ea; color:#1e8e3e; padding:2px 8px; border-radius:5px; font-size:12px; font-weight:600; border:1px solid #c8e6c9">Ctrl + +</kbd></td>
+            <td style="padding:5px 10px">주석 행 삽입 <span style="color:#999; font-size:11px">— 메모 추가</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid #e8e8e8">
+            <td style="padding:5px 10px; white-space:nowrap"><kbd style="background:#e6f4ea; color:#1e8e3e; padding:2px 8px; border-radius:5px; font-size:12px; font-weight:600; border:1px solid #c8e6c9">Ctrl + -</kbd> / <kbd style="background:#e6f4ea; color:#1e8e3e; padding:2px 8px; border-radius:5px; font-size:12px; font-weight:600; border:1px solid #c8e6c9">Del</kbd></td>
+            <td style="padding:5px 10px">선택 행 삭제</td>
+          </tr>
+        </table>
+
+        <div style="margin-top:14px; background:#f0f7f1; border-radius:8px; padding:10px 14px">
+          <p style="font-size:12px; color:#1e8e3e; font-weight:600; margin-bottom:4px">실전 활용 흐름</p>
+          <p style="font-size:12px; color:#555; line-height:1.7">녹취록을 읽다가 의심 발언 발견 → <kbd style="background:#e6f4ea; color:#1e8e3e; padding:1px 5px; border-radius:3px; font-size:11px; border:1px solid #c8e6c9">Shift+Space</kbd> 해당 시점 재생 → <kbd style="background:#e6f4ea; color:#1e8e3e; padding:1px 5px; border-radius:3px; font-size:11px; border:1px solid #c8e6c9">Alt+←</kbd> 다시 듣기 → <kbd style="background:#e6f4ea; color:#1e8e3e; padding:1px 5px; border-radius:3px; font-size:11px; border:1px solid #c8e6c9">Ctrl+F</kbd> 관련 키워드 검색 → <kbd style="background:#e6f4ea; color:#1e8e3e; padding:1px 5px; border-radius:3px; font-size:11px; border:1px solid #c8e6c9">]</kbd> 다음 키워드로 점프</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">활용 시나리오</div>
+  <div class="lessons">
+    <div class="lesson"><div class="lesson-icon">💼</div><h3>임금체불 사건</h3><p>사업주와의 통화 녹음에서 "월급", "수당" 등 키워드를 검색해 약속 시점과 내용을 특정합니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">⚠️</div><h3>직장 내 괴롭힘</h3><p>폭언·협박 키워드를 하이라이트하고, 화자 분리로 가해자 발언만 추출해 정리합니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">🔎</div><h3>장시간 녹취 분석</h3><p>수시간 분량의 녹음도 키워드 검색과 [ ] 점프로 핵심 발언만 빠르게 골라 확인합니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">📊</div><h3>다건 일괄 처리</h3><p>여러 녹음 파일을 한꺼번에 등록하고, 체크한 파일만 골라 PDF·HWPX로 일괄 내보내기합니다.</p></div>
+  </div>
+
+  <div class="section-title">의뢰 시 알아두어야 할 것</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>STT 텍스트는 참고자료, 원본 음성이 증거입니다</h3>
+        <p>AI 변환 텍스트는 <span class="term" data-tip="오인식: STT가 음성을 잘못 텍스트로 변환하는 경우입니다. 사투리, 소음, 빠른 말투 등이 원인이 됩니다. 타임스탬프를 클릭해 원본 음성과 대조하면 오인식 여부를 즉시 확인할 수 있습니다.">오인식</span>이 있을 수 있습니다. 법적 효력을 위해서는 <strong>원본 음성 파일</strong>이 반드시 필요하며, 텍스트는 핵심 발언의 위치를 특정하는 보조 자료로 활용됩니다.</p>
+        <div class="step-tags"><span class="tag tag-warn">원본 파일 반드시 보관</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>녹음 경위와 메타데이터도 중요합니다</h3>
+        <p>언제, 어떤 기기로, 어떤 앱으로 녹음했는지가 증거 신뢰성 판단에 영향을 줍니다. <span class="term" data-tip="메타데이터: 파일 자체의 내용이 아닌, 파일에 대한 정보입니다. 녹음 일시, 기기 모델, 앱 이름, 파일 크기 등이 포함됩니다.">메타데이터</span>가 훼손되지 않도록 원본 파일을 그대로 보관하고, 임의로 편집하거나 변환하지 마세요.</p>
+        <div class="step-tags">
+          <span class="tag tag-bad">파일 편집·변환 금지</span>
+          <span class="tag tag-tip">원본 앱 파일 그대로 전달</span>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">!</div>
+      <div class="step-content">
+        <h3>음질이 분석 결과에 큰 영향을 줍니다</h3>
+        <p>주변 소음이 크거나 목소리가 작으면 <span class="term" data-tip="변환 정확도(WER): STT가 얼마나 정확하게 음성을 텍스트로 옮겼는지를 나타내는 수치입니다. 음질이 나쁠수록 오류가 많아집니다.">변환 정확도</span>가 낮아집니다. 마이크와 가까운 거리에서 녹음한 파일일수록 좋은 결과를 얻을 수 있습니다.</p>
+        <div class="step-tags"><span class="tag tag-tip">음질이 좋을수록 정확도 ↑</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">핵심 요약</div>
+  <div class="lessons">
+    <div class="lesson"><div class="lesson-icon">⚡</div><h3>포렌식 의뢰 없이 직접 분석</h3><p>수사관 PC에서 오프라인으로 바로 사용. 녹취파일만 있으면 됩니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">🎨</div><h3>키워드 색상 하이라이트</h3><p>여러 키워드를 색상별로 구분해 핵심 발언을 한눈에 파악합니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">⌨️</div><h3>단축키로 빠른 분석</h3><p>Shift+Space 재생, Alt+← 되감기, [ ] 키워드 이동으로 흐름을 끊지 않습니다.</p></div>
+    <div class="lesson"><div class="lesson-icon">📄</div><h3>HWPX·PDF 내보내기</h3><p>분석 결과를 한글·PDF로 바로 내보내 보고서에 첨부할 수 있습니다.</p></div>
+  </div>
+
+  <div class="section-title">확인 퀴즈</div>
+  <div class="quiz-card">
+    <div class="quiz-q">Q. SoundWriter로 녹취록을 분석하던 중 의심스러운 발언을 발견했습니다. 가장 효율적인 확인 방법은?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'b3',false)">① 녹취록 전체를 처음부터 다시 들어본다</button>
+      <button class="quiz-opt" onclick="answer(this,'b3',true)">② 해당 타임스탬프를 클릭해 원본 음성을 재생하고, Ctrl+F로 관련 키워드를 추가 검색한다</button>
+      <button class="quiz-opt" onclick="answer(this,'b3',false)">③ 변환된 텍스트만 보고 보고서를 작성한다</button>
+      <button class="quiz-opt" onclick="answer(this,'b3',false)">④ 해당 부분만 잘라내서 별도 파일로 저장한다</button>
+    </div>
+    <div class="quiz-feedback" id="fb-b3"></div>
+  </div>
+  <div class="notice"><p>⚠ STT 변환 텍스트는 <strong>원본 음성을 빠르게 탐색하기 위한 보조 도구</strong>입니다. 증거로 활용할 때는 반드시 원본 파일과 함께 제출하고, 타인 간의 대화를 당사자 동의 없이 녹음하는 것은 법적으로 문제가 될 수 있으니 녹취 전 법적 요건을 확인하세요.</p></div>
+</div>
+
+<!-- 툴팁 -->
+<div class="tip-box" id="tip-box"></div>
+
+<script>
+const tipBox = document.getElementById('tip-box');
+const pages = { b1: 'CCTV 셋톱박스 포렌식', b2: '모바일 이미지 분석', b3: 'STT 음성 분석' };
+const answered = {};
+const msgs = {
+  b1: { ok: '정답! 웹뷰어는 세션 끊김과 전송량 제한으로 불안정합니다. FAT32 USB를 본체에 직접 연결하는 것이 가장 안정적입니다.', no: '아쉽습니다! 웹뷰어는 장시간 다운로드 시 세션이 끊기는 문제가 있습니다. FAT32 포맷의 USB를 CCTV 본체에 직접 꽂아 복사하는 것이 정답입니다.' },
+  b2: { ok: '정답! 스크린샷보다 원본 기기가 훨씬 강력한 증거입니다. 사용을 최소화하고 잠금 해제 정보와 함께 원본 그대로 제출하도록 안내하는 것이 가장 좋습니다.', no: '아쉽습니다! 앱 삭제·초기화·백업은 모두 데이터를 변경합니다. 기기 사용을 최소화하고 잠금 해제 정보와 함께 원본 그대로 제출하도록 안내하는 것이 정답입니다.' },
+  b3: { ok: '정답! 타임스탬프 클릭으로 원본 음성을 즉시 확인하고, Ctrl+F 키워드 검색으로 관련 발언을 추가로 찾는 것이 SoundWriter를 활용한 가장 효율적인 분석 방법입니다.', no: '아쉽습니다! SoundWriter는 타임스탬프 클릭으로 해당 시점 음성을 바로 재생하고, Ctrl+F로 키워드를 검색해 관련 발언을 빠르게 찾을 수 있습니다. 텍스트만 보고 판단하거나 파일을 자르는 것은 좋지 않습니다.' }
+};
+
+document.addEventListener('click', e => {
+  const term = e.target.closest('.term');
+  if (term) {
+    e.stopPropagation();
+    tipBox.textContent = term.dataset.tip;
+    tipBox.style.display = 'block';
+    const r = term.getBoundingClientRect();
+    const tw = Math.min(260, window.innerWidth - 24);
+    tipBox.style.maxWidth = tw + 'px';
+    let left = r.left;
+    if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
+    if (left < 8) left = 8;
+    tipBox.style.left = left + 'px';
+    const spaceBelow = window.innerHeight - r.bottom;
+    if (spaceBelow < 120) {
+      tipBox.style.top = (r.top - tipBox.offsetHeight - 12) + 'px';
+      tipBox.classList.add('above');
+    } else {
+      tipBox.style.top = (r.bottom + 10) + 'px';
+      tipBox.classList.remove('above');
+    }
+  } else {
+    tipBox.style.display = 'none';
+  }
+});
+
+function goPage(id) {
+  document.getElementById('hub-page').style.display = 'none';
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('back-btn').style.display = 'inline-block';
+  document.getElementById('nav-title').textContent = pages[id];
+  tipBox.style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+function goHub() {
+  document.getElementById('hub-page').style.display = 'block';
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('back-btn').style.display = 'none';
+  document.getElementById('nav-title').textContent = '디지털포렌식 체험부스';
+  tipBox.style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+function answer(btn, booth, correct) {
+  if (answered[booth]) return;
+  answered[booth] = true;
+  btn.closest('.quiz-options').querySelectorAll('.quiz-opt').forEach(o => {
+    o.disabled = true;
+    if (o.getAttribute('onclick').includes(',true)')) o.classList.add('correct');
+  });
+  if (!correct) btn.classList.add('wrong');
+  const fb = document.getElementById('fb-' + booth);
+  fb.textContent = correct ? msgs[booth].ok : msgs[booth].no;
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+}
+</script>
+</body>
+</html>
